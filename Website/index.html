@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Affective Computing - Relaxation study</title>
+
+    <style>
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            /* Hide scrollbars */
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            grid-template-rows: repeat(10, 50px);
+            gap: 5px;
+            margin: 20px 0;
+        }
+
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .cell.correct {
+            background-color: green;
+            color: white;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .counter {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        img {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .container .btn {
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            background-color: #555;
+            color: white;
+            font-size: 16px;
+            padding: 12px 24px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .container .btn:hover {
+            background-color: black;
+        }
+
+        .slider {
+            width: 80%;
+            margin-left: 10%;
+        }
+
+        table {
+            padding-top: 5%;
+        }
+    </style>
+
+    <!-- 
+    Testing timeline:
+    2-minute initial relaxation 
+    Fill in the RSQ ( 1 minute) 
+    Do the grid number game (3 minutes) 
+    Listen to random audio file (3 minutes) 
+    Fill in the RSQ (1 minute) 
+    Do the grid number game (3 minutes) 
+    Listen to random audio file (3 minutes) 
+    Fill in the RSQ (1 minute) 
+    Do the grid number game (3 minutes) 
+    Listen to random audio file (3 minutes) 
+    Fill in the RSQ (1 minute)
+    -->
+</head>
+
+<body>
+    <div id="waiting" class="container" style="display: block;">
+        <!-- <img src="https://placehold.co/1600x800.png?text=Waiting page"> -->
+        <img src="images/waiting.png" alt="Waiting page">
+        <button class="btn" id="waiting-button">Continue</button>
+    </div>
+
+    <div id="instruction" class="container" style="display: none;">
+        <!-- <img src="https://placehold.co/1600x800.png?text=Instruction page"> -->
+        <img src="images/instruction.png" alt="Instruction page">
+        <button class="btn" id="instruction-button">Start experiment</button>
+    </div>
+
+    <div id="test" class="container" style="display: none;">
+        <div class="small-container" id="rsq" style="display: none">
+            <h1 style="text-align: center;">Please fill in the survey</h1>
+            <table>
+                <tr>
+                    <th height="3%"></th>
+                    <th width="10%">Not correct at all</th>
+                    <th width="10%">Rather not correct</th>
+                    <th width="10%">Neither/nor</th>
+                    <th width="10%">Rather correct</th>
+                    <th width="10%">Entirely correct</th>
+                </tr>
+                <tr>
+                    <td><label for="range1">My breathing is faster than usual.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range1"></td>
+                </tr>
+                <tr>
+                    <td><label for="range2">My heart is beating faster than usual.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range2"></td>
+                </tr>
+                <tr>
+                    <td><label for="range3">My muscles feel tense and cramped (clenched fist and/or jaw; furrowed
+                            brow).</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range3"></td>
+                </tr>
+                <tr>
+                    <td><label for="range4">My muscles feel relaxed.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range4"></td>
+                </tr>
+                <tr>
+                    <td><label for="range5">My muscles feel loose.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range5"></td>
+                </tr>
+                <tr>
+                    <td><label for="range6">I'm feeling very relaxed.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range6"></td>
+                </tr>
+                <tr>
+                    <td><label for="range7">Right now, I am completely calm.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range7"></td>
+                </tr>
+                <tr>
+                    <td><label for="range8">I'm feeling sleepy and tired.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range8"></td>
+                </tr>
+                <tr>
+                    <td><label for="range9">I'm about to doze off.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range9"></td>
+                </tr>
+                <tr>
+                    <td><label for="range10">I'm feeling refreshed and awake.</label></td>
+                    <td colspan="5"><input type="range" min="1" max="5" value="3" class="slider" id="range10"></td>
+                </tr>
+            </table>
+            <button class="btn" id="rsq-button">Submit survey and continue</button>
+        </div>
+
+        <div class="small-container" id="game" style="display: none;">
+            <h1>Click the next number in the sequence</h1>
+            <div class="game-counter" id="game-counter">Next Number: 1</div>
+            <div class="game-grid" id="game-grid"></div>
+        </div>
+
+        <div class="small-container" id="audio" style="display: none;">
+            <!-- <img src="https://placehold.co/1600x800.png?text=Audio"> -->
+            <img src="images/relax-audio.png" alt="Relax and Audio page">
+            <audio src="" id="audio-player"></audio>
+        </div>
+
+        <div class="small-container" id="relax" style="display: none;">
+            <!-- <img src="https://placehold.co/1600x800.png?text=Relax please"> -->
+            <img src="images/relax.png" alt="Relax page">
+        </div>
+    </div>
+
+    <div class="container" id="finish" style="display: none;">
+        <!-- <img src="https://placehold.co/1600x800.png?text=Finished"> -->
+        <img src="images/finished.png" alt="Finished page">
+        <button class="btn" id="reset-button">[Supervisors only] Reset experiment</button>
+    </div>
+
+
+    <script>
+        // Variables
+        let testState = 0;
+        let playSound = 0;
+        let sounds = ["tibetan", "classical", "nature"];
+        let audioPlayer = document.querySelector("#audio-player");
+
+        let audioDelay = 3 * 60 * 1000;
+        let gameDelay = 3 * 60 * 1000;
+        let relaxDelay = 2 * 60 * 1000;
+
+        // Enable this for debugging
+        // audioDelay = gameDelay = relaxDelay = 2000;
+
+
+        // Perform resets on first load
+        window.onload = () => {
+            sounds.sort(() => Math.random() - 0.5)
+
+            resetGame();
+
+            resetRSQ();
+            // localStorage.clear();
+
+            localStorage.setItem("sounds", sounds);
+        };
+
+        // Wait until the participant is ready to start, then show the instructions
+        document.querySelector("#waiting-button").addEventListener("click", function () {
+            document.querySelector("#waiting").style.display = "none";
+            document.querySelector("#instruction").style.display = "block";
+        });
+
+        // Reset the whole website 
+        document.querySelector("#reset-button").addEventListener("click", function () {
+            if (confirm("Are you sure you want to clear the storage?")) {
+                localStorage.clear()
+                location.reload();
+            }
+        });
+
+        // Start with the first relaxation session after the instructions are clear
+        document.querySelector("#instruction-button").addEventListener("click", function () {
+            document.querySelector("#instruction").style.display = "none";
+            document.querySelector("#test").style.display = "block";
+            document.querySelector("#relax").style.display = "block";
+            testState = 1;
+
+            localStorage.setItem("startTimestamp", Date.now());
+
+            setTimeout(startRSQ, relaxDelay);
+        });
+
+        // Start the RSQ if the audio is done.
+        function startRSQ() {
+            testState += 1;
+            audioPlayer.pause();
+
+            document.querySelector("#audio").style.display = "none";
+            document.querySelector("#relax").style.display = "none";
+            document.querySelector("#rsq").style.display = "block";
+
+            localStorage.setItem("rsqTimestamp" + playSound, Date.now())
+        }
+
+        // When the RSQ is finished, store the results and proceed to the next section (if not finished)
+        document.querySelector("#rsq-button").addEventListener("click", function () {
+            // Prepare all data for storage
+            let rsqResult = "{";
+
+            rsqResult += '"Q1": ' + document.querySelector("#range1").value + ",";
+            rsqResult += '"Q2": ' + document.querySelector("#range2").value + ",";
+            rsqResult += '"Q3": ' + document.querySelector("#range3").value + ",";
+            rsqResult += '"Q4": ' + document.querySelector("#range4").value + ",";
+            rsqResult += '"Q5": ' + document.querySelector("#range5").value + ",";
+            rsqResult += '"Q6": ' + document.querySelector("#range6").value + ",";
+            rsqResult += '"Q7": ' + document.querySelector("#range7").value + ",";
+            rsqResult += '"Q8": ' + document.querySelector("#range8").value + ",";
+            rsqResult += '"Q9": ' + document.querySelector("#range9").value + ",";
+            rsqResult += '"Q10": ' + document.querySelector("#range10").value;
+
+            rsqResult += "}";
+            localStorage.setItem("RSQ" + (testState - 2) / 3, rsqResult)
+
+            // Reset all elements
+            resetRSQ();
+            resetGame();
+
+            // If the last round is done, finish
+            if (testState == 11) {
+                console.log("Finished!");
+                document.querySelector("#rsq").style.display = "none";
+                document.querySelector("#finish").style.display = "block";
+
+                localStorage.setItem("endTimestamp", Date.now());
+
+                // export timeout to ensure people read the final page
+                setTimeout(() => { exportLocalStorage() }, 1000);
+            } else {
+                // Else continue to the next section
+
+                testState += 1;
+
+                // store the time of game start
+                localStorage.setItem("gameTimestamp" + playSound, Date.now())
+
+                document.querySelector("#rsq").style.display = "none";
+                document.querySelector("#game").style.display = "block";
+                createGrid();
+                setTimeout(startAudio, gameDelay);
+            }
+        });
+
+        // Start playing the next audio cue
+        function startAudio() {
+            testState += 1;
+
+
+            // Select randomly from the available sounds
+            let randomFileNr = Math.floor(Math.random() * 3) + 1;
+            audioPlayer.src = "sounds/" + sounds[playSound] + "/" + randomFileNr + ".mp3";
+            audioPlayer.currentTime = 0;  // reset the audio player
+            audioPlayer.play();
+
+            // store the selected sound
+            localStorage.setItem("sound" + playSound, sounds[playSound] + "/" + randomFileNr + ".mp3")
+            // store the time of sound start
+            localStorage.setItem("soundTimestamp" + playSound, Date.now())
+
+            playSound += 1;
+
+            document.querySelector("#game").style.display = "none";
+            document.querySelector("#audio").style.display = "block";
+            setTimeout(startRSQ, audioDelay);
+        }
+
+        // Reset all RSQ questions
+        function resetRSQ() {
+            document.querySelector("#range1").value = 3;
+            document.querySelector("#range2").value = 3;
+            document.querySelector("#range3").value = 3;
+            document.querySelector("#range4").value = 3;
+            document.querySelector("#range5").value = 3;
+            document.querySelector("#range6").value = 3;
+            document.querySelector("#range7").value = 3;
+            document.querySelector("#range8").value = 3;
+            document.querySelector("#range9").value = 3;
+            document.querySelector("#range10").value = 3;
+        }
+
+        // ---------- Game elements ---------
+
+        let currentNumber = 1;
+
+        // Randomly shuffle the numbers in the array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Create a new grid randomly filled with numbers
+        function createGrid() {
+            const gridElement = document.getElementById('game-grid');
+            gridElement.innerHTML = '';
+            let numbers = Array.from({ length: 100 }, (_, i) => i + 1);
+            numbers = shuffleArray(numbers);
+            numbers.forEach(number => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerText = number;
+                cell.addEventListener('click', () => handleCellClick(number, cell));
+                gridElement.appendChild(cell);
+            });
+            updateCounter();
+        }
+
+        // Handle click on cell
+        function handleCellClick(number, cell) {
+            if (number === currentNumber) {
+                cell.classList.add('correct');
+                setTimeout(() => {
+                    cell.classList.remove('correct');
+                    cell.innerText = number + 100; // Change the number to the next sequential number
+                }, 2000); // Change number after 2 seconds
+                currentNumber++;
+                updateCounter();
+            }
+        }
+
+        function updateCounter() {
+            // Update the current number indicator at top of screen
+            const counterElement = document.getElementById('game-counter');
+            counterElement.innerText = `Next Number: ${currentNumber}`;
+        }
+
+        function resetGame() {
+            // Reset the current number and then create a new grid
+            currentNumber = 1;
+            createGrid();
+        }
+
+        // ---------- Final export ----------
+
+        // Function to export localStorage to a JSON file and trigger download
+        function exportLocalStorage() {
+            // Retrieve all data from localStorage
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                data[key] = localStorage.getItem(key);
+            }
+
+            // Convert data to JSON string
+            const jsonString = JSON.stringify(data, null, 2);
+
+            // Create a Blob with the JSON data
+            const blob = new Blob([jsonString], { type: "application/json" });
+
+            // Create a link element
+            const link = document.createElement("a");
+
+            // Set the download attribute with a filename
+            link.download = "session.json";
+
+            // Create a URL for the Blob and set it as href attribute
+            link.href = URL.createObjectURL(blob);
+
+            // Append the link to the body (it won't be visible)
+            document.body.appendChild(link);
+
+            // Programmatically click the link to trigger the download
+            link.click();
+
+            // Remove the link from the document
+            document.body.removeChild(link);
+        }
+
+    </script>
+</body>
+
+</html>
